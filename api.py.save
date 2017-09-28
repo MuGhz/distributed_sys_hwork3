@@ -8,26 +8,16 @@ import yaml
 
 database = SqliteDatabase('database.db')
 app = Flask(__name__)
-spek = yaml.load(open('/root/api/spesifikasi.yaml'))
+spek = yaml.load(open('spesifikasi.yaml'))
 
 def get_time():
 	r = requests.get('http://172.17.0.70:17088',)
 	response = json.loads(r.text)
 	return response['state']
 
-def error_code(code):
-	title = ''
-	detail = ''
-	if code == '400':
-		detail = "'request' is a required property "
-		title = 'Bad Request'
-	elif code == '404':
-		detail = "The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again."
-		title = 'Not Found'
-	elif code == '405':
-		detail = "Service call for the URL is not allowed"
-		title = "Not Allowed"
-	return jsonify(code=code,detail=detail,title=title),int(code)
+def error(code)
+	:
+	return 'ERROR '+code
 
 @app.before_request
 def _db_connect():
@@ -52,21 +42,17 @@ def hello():
 			apiversion = spek['info']['version']
 			return jsonify(response=response,currentvisit=time,apiversion=apiversion,count=user_request.count),200
 		else:
-			return error_code('400')
+			return jsonify(error=error('400')),400
 	else:
-		return error_code('405')
+		return jsonify(error=error('405')),405
 
 @app.route('/api/plus_one/<int:integer>',methods=['GET'])
 def plus_one(integer):
 	if integer > 0:
 		return jsonify(plusoneret=integer+1,apiversion=spek['info']['version']),200
 	else:
-		return error_code('404')
+		return jsonify(error=error('404')),404
 
 @app.route('/api/spesifikasi.yaml')
 def spesifikasi():
-	return open('/root/api/spesifikasi.yaml')
-
-@app.errorhandler(404)
-def not_found(e):
-	return error_code('404')
+	return str(spek)
