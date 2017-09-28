@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import request
+from flask import Flask,request,jsonify
 import requests
 import json
 import datetime
@@ -12,16 +11,18 @@ def get_time()
 def error(code):
 	return 'ERROR '+code+'\n'
 
-
-
 @app.route('/api/hello',methods=['GET','POST'])
 def hello():
 	if request.method  == 'POST':
-		if request.m
-		time=str(datetime.datetime.now())
-		
+		req = json.load(request.data.decode("utf-8"))['request']
+		if req != None:
+			time=str(datetime.datetime.now())
+			response = 'Good '+get_time()
+			apiversion = 1
+		else:
+			return error(400)
 	else:
-		return error('404')
+		return error('405')
 
 @app.route('/api/plus_one/{var}',methods=['GET'])
 def plus_one(var):
