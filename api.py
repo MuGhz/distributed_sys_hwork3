@@ -5,10 +5,15 @@ import requests
 import json
 import datetime
 import yaml
+import socket
 
 database = SqliteDatabase('database.db')
 app = Flask(__name__)
 spek = yaml.load(open('/root/api/spesifikasi.yaml'))
+
+def yaml_ip():
+	hostname = socket.gethostbyname(socket.gethostname())
+	spek['host']= hostname+':12032'
 
 def get_time():
 	r = requests.get('http://172.17.0.70:17088',)
@@ -65,7 +70,8 @@ def plus_one(integer):
 
 @app.route('/api/spesifikasi.yaml')
 def spesifikasi():
-	return open('/root/api/spesifikasi.yaml')
+	yaml_ip()
+	return str(spek)
 
 @app.errorhandler(404)
 def not_found(e):
