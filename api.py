@@ -46,7 +46,10 @@ def _db_close(exc):
 @app.route('/api/hello',methods=['GET','POST'])
 def hello():
 	if request.method  == 'POST':
-		req = json.loads(request.data.decode("utf-8"))['request']
+		try :
+			req = json.loads(request.data.decode("utf-8"))['request']
+		except KeyError:
+			return error_code('400')
 		if req != None:
 			count =1
 			user_request, created = User_count.get_or_create(name=req)
@@ -76,3 +79,7 @@ def spesifikasi():
 @app.errorhandler(404)
 def not_found(e):
 	return error_code('404')
+
+@app.errorhandler(500)
+def not_allowed(e):
+	return error_code('400')
